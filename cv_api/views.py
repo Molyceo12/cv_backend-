@@ -114,7 +114,14 @@ class BaseCVChildViewSet(viewsets.ModelViewSet):
         })
 
     def destroy(self, request, *args, **kwargs):
+        cv_id = request.query_params.get('cv') or request.data.get('cv')
         instance = self.get_object()
+        
+        if cv_id and instance.cv_id != cv_id:
+            return Response({
+                "error": "This record does not belong to the specified CV."
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
         self.perform_destroy(instance)
         return Response({
             "message": "Record deleted successfully"
